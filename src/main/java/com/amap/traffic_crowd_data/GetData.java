@@ -56,7 +56,7 @@ public class GetData {
         System.out.println("共有城市：" + cityData.size());
 
         // 开多线程直接怼
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 10, 0L, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(20, 20, 0L, TimeUnit.SECONDS, new LinkedBlockingDeque<>());
 
         // 2. 遍历城市列表获取其中每个城市的数据
         long start = new Date().getTime();
@@ -65,7 +65,7 @@ public class GetData {
             String targetStr = crowdDataUrl.replaceAll("cciittyy", city.getCode() + "");
             ArrayList<String> targetDateList = new ArrayList<>();
             targetDateList.add("2019-4");
-
+            // 构造所要获取的年份季度List
             Calendar calendar = Calendar.getInstance();
             int year = calendar.get(Calendar.YEAR);
             int categories = (int) Math.ceil((calendar.get(Calendar.MONTH) + 1) / 3.0);
@@ -97,15 +97,10 @@ public class GetData {
                 }
             }
             String[] targetDates = targetDateList.toArray(new String[]{});
-            System.out.println(targetDates);
             for (String targetDateStr : targetDates) {
                 executor.execute(getAndSave(targetDateStr, targetStr, mapper, city));
             }
         }
-
-        long end = new Date().getTime();
-        System.out.println("共耗时：" + (end - start) / 1000 + "s");
-
     }
 
     public static Runnable getAndSave(String targetDateStr, String targetStr, ObjectMapper mapper, CityData city) {
@@ -127,7 +122,6 @@ public class GetData {
             for (int i = 0; i < length; i++) {
                 template.update(crowdDataSql, city.getCode(), receivedCrowdData.getSerieData()[i], receivedCrowdData.getCategories()[i]);
             }
-
         };
     }
 
